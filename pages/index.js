@@ -3,7 +3,7 @@ import MainGrid from '../src/components/MainGrid'
 import Box from '../src/components/Box'
 import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet } from '../src/lib/AlurakutCommons'
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfielRelations'
-// todo criar um componente para profilerelationsarea, que usa um objeto como propriedade e este objeto terá como propriedade um título e uma array para dados 
+// TODO criar um componente para profilerelationsarea, que usa um objeto como propriedade e este objeto terá como propriedade um título e uma array para dados 
 function ProfileSidebar(propriedade) {
   return (
     <Box as="aside">
@@ -22,6 +22,28 @@ function ProfileSidebar(propriedade) {
   )
 }
 
+function ProfileRelationsBox(propriedades) {
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className="smallTitle">
+        {propriedades.title} ({propriedades.items.length})
+      </h2>
+      <ul>
+        {propriedades.items.slice(0, 6).map(({login: user, id, avatar_url, html_url}) => {
+          return (
+            <li key={id}>
+              <a href={`${html_url}`}>
+                <img src={avatar_url} />
+                <span>{user}</span>
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  )
+}
+
 export default function Home() {
   const [comunidades, setComunidades] = React.useState([{
     id: new Date().toISOString(),
@@ -29,7 +51,7 @@ export default function Home() {
     image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
   }])
   const user = 'caio86';
-  console.log(comunidades)
+  // console.log(comunidades)
   // const comunidades = ['Alurakut']
   const pessoasFavoritas = [
     'peas',
@@ -39,6 +61,16 @@ export default function Home() {
     'felipefialho',
     'rafaballerini'
   ]
+  const [seguidores, setSeguidores] = React.useState([])
+  React.useEffect(function() {
+    fetch(`https://api.github.com/users/peas/followers`)
+    .then(function (respostaDoservidor) {
+      return respostaDoservidor.json()
+    })
+    .then(function (respostaCompleta) {
+      setSeguidores(respostaCompleta)
+    })
+  }, [])
 
   return (
     <>
@@ -96,6 +128,7 @@ export default function Home() {
           </Box>
         </div>
         <div className="profileRelationsArea" style={{ gridArea: "profileRelationsArea"}}>
+          <ProfileRelationsBox title="Seguidores" items={seguidores}/>
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">
               Comunidades ({comunidades.length})
@@ -122,7 +155,7 @@ export default function Home() {
               {pessoasFavoritas.slice(0, 6).map((itemAtual) => {
                 return (
                   <li key={itemAtual}>
-                    <a href={`/users/${itemAtual}`}>
+                    <a href={`https://github.com/${itemAtual}`}>
                       <img src={`https://github.com/${itemAtual}.png`} />
                       <span>{itemAtual}</span>
                     </a>
